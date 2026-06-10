@@ -1,0 +1,28 @@
+{
+  "channels": [
+    { "id": "C01", "name": "product", "topic": "Roadmap, specs, decisions" },
+    { "id": "C02", "name": "eng-platform", "topic": "Backend, pipeline, API" },
+    { "id": "C03", "name": "customer-voice", "topic": "Raw quotes from sales & support" },
+    { "id": "C04", "name": "incidents", "topic": "Production incidents and postmortems" }
+  ],
+  "messages": {
+    "C01": [
+      { "user": "Grace Okafor", "ts": "Mon 09:12", "text": "Q3 focus stays Data Out + Onboarding. Anything not moving export adoption or time-to-first-dashboard gets parked." },
+      { "user": "Margaret Liu", "ts": "Mon 11:40", "text": "Template gallery mock is ready. Want to scope sample-data mode with it or ship templates first?" },
+      { "user": "Grace Okafor", "ts": "Mon 11:46", "text": "Templates first. Sample data is a fast-follow if activation moves." }
+    ],
+    "C02": [
+      { "user": "Ada Moreno", "ts": "Tue 10:02", "text": "Read API v1: settled on cursor pagination, 100 req/min per key. Draft spec in the repo under docs/read-api.md." },
+      { "user": "Linus Park", "ts": "Tue 10:15", "text": "Export scheduler can reuse the alerting cron infra — saves us a queue. Spiking it today." },
+      { "user": "Ada Moreno", "ts": "Tue 10:18", "text": "Watch the S3 multipart limits if dashboards exceed 5GB. Maxwell's main board is 11M rows." }
+    ],
+    "C03": [
+      { "user": "sales-bot", "ts": "Mon 16:20", "text": "Maxwell Corp (renewal Nov, $240k): 'If we can't get nightly CSVs into our warehouse we will build on top of a competitor's API.'" },
+      { "user": "support-bot", "ts": "Wed 09:05", "text": "3 tickets this week: users confused by empty dashboard after connecting a source. Quote: 'I connected Postgres and then... nothing told me what to do.'" },
+      { "user": "sales-bot", "ts": "Thu 14:11", "text": "Two mid-market prospects asked if alerts can 'learn what normal looks like' instead of static thresholds." }
+    ],
+    "C04": [
+      { "user": "oncall-bot", "ts": "Sat 03:40", "text": "INC-88 resolved: ingestion lag 40min due to backfill job starving the consumer pool. Action item: separate backfill queue (unassigned)." }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "buildCommand": "pnpm --filter @virtual-sim/shared build && pnpm --filter web build",
+  "outputDirectory": "apps/web/.next",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "framework": "nextjs",
+  "env": {
+    "SERVER_URL": "@server_url",
+    "NEXT_PUBLIC_SERVER_WS": "@next_public_server_ws"
+  }
+}

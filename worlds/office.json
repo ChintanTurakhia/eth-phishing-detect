@@ -1,0 +1,70 @@
+{
+  "name": "office",
+  "tileSize": 32,
+  "rows": [
+    "111111111111111111111111111111",
+    "100000000000001000000000000001",
+    "100000000000001000000000000001",
+    "100000000000001000000000000001",
+    "100000000000000000000000000001",
+    "100000000000000000000000000001",
+    "100000000000001000000000000001",
+    "100000000000001000000000000001",
+    "100000000000001000000000000001",
+    "111111100111111111111100111111",
+    "100000000000001000000000000001",
+    "100000000000001000000000000001",
+    "100000000000001000000000000001",
+    "100000000000000000000000000001",
+    "100000000000000000000000000001",
+    "100000000000000000000000000001",
+    "100000000000001000000000000001",
+    "100000000000001000000000000001",
+    "100000000000001000000000000001",
+    "111111111111111111111111111111"
+  ],
+  "areas": {
+    "bullpen": {
+      "label": "the bullpen",
+      "anchor": { "x": 7, "y": 4 },
+      "objects": {
+        "desk-ada": { "label": "Ada's desk", "anchor": { "x": 3, "y": 2 } },
+        "desk-grace": { "label": "Grace's desk", "anchor": { "x": 3, "y": 6 } },
+        "desk-linus": { "label": "Linus's desk", "anchor": { "x": 10, "y": 2 } },
+        "desk-margaret": { "label": "Margaret's desk", "anchor": { "x": 10, "y": 6 } }
+      }
+    },
+    "standup-corner": {
+      "label": "the standup corner",
+      "anchor": { "x": 7, "y": 7 },
+      "objects": {
+        "standup-board": { "label": "the standup board", "anchor": { "x": 6, "y": 8 } }
+      }
+    },
+    "war-room": {
+      "label": "the war room",
+      "anchor": { "x": 21, "y": 4 },
+      "objects": {
+        "whiteboard": { "label": "the big whiteboard", "anchor": { "x": 25, "y": 2 } },
+        "tv": { "label": "the metrics TV", "anchor": { "x": 25, "y": 6 } }
+      }
+    },
+    "kitchen": {
+      "label": "the kitchen",
+      "anchor": { "x": 5, "y": 14 },
+      "objects": {
+        "coffee-machine": { "label": "the coffee machine", "anchor": { "x": 2, "y": 11 } },
+        "fridge": { "label": "the fridge", "anchor": { "x": 2, "y": 17 } },
+        "snack-shelf": { "label": "the snack shelf", "anchor": { "x": 5, "y": 17 } }
+      }
+    },
+    "library": {
+      "label": "the quiet library",
+      "anchor": { "x": 22, "y": 14 },
+      "objects": {
+        "bookshelf": { "label": "the bookshelf", "anchor": { "x": 27, "y": 11 } },
+        "beanbag": { "label": "the beanbag", "anchor": { "x": 27, "y": 17 } }
+      }
+    }
+  }
+}

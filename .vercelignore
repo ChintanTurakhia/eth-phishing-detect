@@ -1,0 +1,4 @@
+data
+packages/server/node_modules
+packages/core/node_modules
+apps/web/node_modules
