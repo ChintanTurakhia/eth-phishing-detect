@@ -24,8 +24,10 @@ export class AgentRuntime {
   plans: PlanItem[] = [];
   /** Day index for which the day plan was generated (-1 = none). */
   plannedDay = -1;
-  /** Day-chunk windows (chunk.id -> next undcomposed window start). */
+  /** Day-chunk windows (chunk.id -> next undecomposed window start). */
   decomposedUntil = new Map<string, SimMinutes>();
+  /** Chunks whose work session already ran (one artifact attempt per chunk). */
+  workSessionsDone = new Set<string>();
   seen = new SeenCache();
   /** Tile path the agent is walking; consumed by the movement step. */
   movePath: Point[] = [];

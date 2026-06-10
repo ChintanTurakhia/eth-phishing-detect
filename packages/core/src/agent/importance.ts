@@ -1,6 +1,6 @@
 import { importanceScoresJsonSchema, importanceScoresZ } from "@virtual-sim/shared";
 import type { LlmPort } from "../ports.js";
-import { PRIORITY, type Scheduler } from "../sim/scheduler.js";
+import { PRIORITY } from "../sim/scheduler.js";
 import { importancePrompt } from "./prompts.js";
 
 interface QueueItem {
@@ -11,16 +11,24 @@ interface QueueItem {
 /**
  * Batched importance (poignancy) scorer on the utility model.
  * Items queue up and flush in batches of up to 10.
+ *
+ * Deliberately NOT routed through the Scheduler: callers awaiting score()
+ * may themselves hold scheduler slots, so a scheduled flush could starve
+ * behind them and deadlock. Haiku batch calls are cheap; they run direct.
  */
 export class ImportanceScorer {
   private queue: QueueItem[] = [];
-  private flushing = false;
+  private inFlight = 0;
 
   constructor(
     private readonly llm: LlmPort,
-    private readonly scheduler: Scheduler,
     private readonly batchSize = 10,
   ) {}
+
+  /** True while scores are queued or being fetched (used by quiesce). */
+  get busy(): boolean {
+    return this.queue.length > 0 || this.inFlight > 0;
+  }
 
   score(text: string): Promise<number> {
     return new Promise((resolve) => {
@@ -31,12 +39,9 @@ export class ImportanceScorer {
 
   /** Called once per tick by the sim loop to flush stragglers. */
   async flush(): Promise<void> {
-    if (this.flushing || this.queue.length === 0) return;
-    this.flushing = true;
-    const batch = this.queue.splice(0, this.batchSize);
-    this.flushing = false;
-
-    void this.scheduler.schedule(PRIORITY.importance, async () => {
+    while (this.queue.length > 0) {
+      const batch = this.queue.splice(0, this.batchSize);
+      this.inFlight += batch.length;
       try {
         const res = await this.llm.call({
           tier: "utility",
@@ -53,10 +58,10 @@ export class ImportanceScorer {
       } catch {
         // Scoring failure should never stall the sim — fall back to neutral.
         batch.forEach((item) => item.resolve(3));
+      } finally {
+        this.inFlight -= batch.length;
       }
-    });
-
-    if (this.queue.length >= this.batchSize) await this.flush();
+    }
   }
 }
 

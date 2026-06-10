@@ -47,6 +47,7 @@ export class Simulation {
   private dialogues = new Map<string, DialogueController>();
   private pendingStart = new Map<string, PlanItem>();
   private tickEvents: WorldEvent[] = [];
+  private observationsInFlight = 0;
 
   constructor(
     private readonly deps: SimDeps,
@@ -57,7 +58,19 @@ export class Simulation {
     this.clock = new GameClock(startSim);
     this.world = world instanceof WorldTree ? world : new WorldTree(world);
     this.scheduler = new Scheduler(settings.llmConcurrency);
-    this.importance = new ImportanceScorer(deps.llm, this.scheduler);
+    this.importance = new ImportanceScorer(deps.llm);
+  }
+
+  /** Wait until all in-flight cognition, scoring, and perception settles. */
+  async quiesce(): Promise<void> {
+    for (let i = 0; i < 200; i++) {
+      await this.importance.flush();
+      await this.scheduler.drain();
+      if (!this.importance.busy && this.scheduler.pending === 0 && this.observationsInFlight === 0) {
+        return;
+      }
+      await new Promise((r) => setTimeout(r, 25));
+    }
   }
 
   get retrievalParams(): RetrievalParams {
@@ -92,7 +105,6 @@ export class Simulation {
 
   async tick(): Promise<void> {
     const now = this.clock.tick();
-    this.tickEvents = [];
     this.deps.sink.emit({ type: "clock.update", payload: { simTime: now } });
 
     for (const agent of this.agents.values()) {
@@ -140,6 +152,7 @@ export class Simulation {
         agent.yesterdaySummary = yesterday.length > 0 ? yesterday.join("; ") : agent.yesterdaySummary;
         agent.plans = [];
         agent.decomposedUntil.clear();
+        agent.workSessionsDone.clear();
         const items = await generateDayPlan(this.planDeps(agent), {
           agentId: agent.id,
           now,
@@ -261,7 +274,11 @@ export class Simulation {
       `${agent.name} is ${item.description}`);
     this.persistAgent(agent);
 
-    if (item.isWork) {
+    // One work session per plan chunk: the first work-typed action of a
+    // chunk runs the MCP work loop; sibling actions are its in-fiction time.
+    const workKey = item.parentId ?? item.id;
+    if (item.isWork && !agent.workSessionsDone.has(workKey)) {
+      agent.workSessionsDone.add(workKey);
       void this.scheduler.schedule(
         PRIORITY.work,
         async () => {
@@ -416,22 +433,41 @@ export class Simulation {
 
   private perceive(now: SimMinutes): void {
     if (this.tickEvents.length === 0) return;
+    // Consume the buffer here (not at tick start): events emitted by async
+    // cognition between ticks must survive until the next perception pass.
+    const events = this.tickEvents;
+    this.tickEvents = [];
     for (const agent of this.agents.values()) {
       if (agent.state.status === "asleep") continue;
-      for (const e of this.tickEvents) {
+      for (const e of events) {
         if (e.subject === agent.name) continue;
         if (this.world.areaOf(e.locationPath) !== this.world.areaOf(agent.state.location)) continue;
         if (!agent.seen.novel(e, now)) continue;
-        void this.scheduler.schedule(PRIORITY.importance, async () => {
-          const score = await this.importance.score(e.description);
-          const memory = await agent.memory.append("observation", e.description, score, this.clock.now);
-          this.deps.sink.emit({ type: "memory.created", payload: { agentId: agent.id, memory } });
-          if (score >= this.settings.reactGateImportance && !agent.state.conversationId) {
-            await this.handleReaction(agent, e, score);
-          }
+        // Runs outside the scheduler: the score promise resolves via the
+        // per-tick importance flush, so it must not hold a scheduler slot.
+        this.observationsInFlight += 1;
+        void this.processObservation(agent, e).finally(() => {
+          this.observationsInFlight -= 1;
         });
-        void this.importance.flush();
       }
+    }
+  }
+
+  private async processObservation(agent: AgentRuntime, e: WorldEvent): Promise<void> {
+    try {
+      const score = await this.importance.score(e.description);
+      const memory = await agent.memory.append("observation", e.description, score, this.clock.now);
+      this.deps.sink.emit({ type: "memory.created", payload: { agentId: agent.id, memory } });
+      if (score >= this.settings.reactGateImportance && !agent.state.conversationId) {
+        void this.scheduler.schedule(
+          PRIORITY.react,
+          () => this.handleReaction(agent, e, score),
+          `react:${agent.id}`,
+        );
+      }
+    } catch (err) {
+      // Perception must never crash the tick loop.
+      void err;
     }
   }
 

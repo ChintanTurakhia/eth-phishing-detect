@@ -1,0 +1,29 @@
+{
+  "docs": [
+    {
+      "id": "doc_q3_strategy",
+      "title": "Q3 Product Strategy — Data Out & Onboarding",
+      "snippet": "Two bets: (1) Data Out — exports, read API, webhooks; directly defends $1.1M of enterprise ARR at renewal risk. (2) First-Five-Minutes — cut time-to-first-dashboard from 26m to <5m; activation (D7 dashboard created) is the strongest retention predictor we have (r=0.61)."
+    },
+    {
+      "id": "doc_export_prd",
+      "title": "PRD: Scheduled Exports (LUM-341)",
+      "snippet": "Scope: per-dashboard schedule (daily/weekly), destinations email + S3, formats CSV first then Parquet (LUM-371). Out of scope: row-level transforms. Success: 30% of enterprise workspaces with an active schedule within 60 days. Open: encryption-at-destination requirements for healthcare customers."
+    },
+    {
+      "id": "doc_onboarding_research",
+      "title": "Research: Onboarding drop-off study (n=212)",
+      "snippet": "62% of new workspaces never create a dashboard. Biggest stall: post-connection empty state ('what now?'). Users who apply a template in session 1 activate at 3.4x the rate. Auto-schema detection rated 'very useful' by 81% of interviewees."
+    },
+    {
+      "id": "doc_incident_88",
+      "title": "Postmortem INC-88: ingestion lag",
+      "snippet": "Backfill job starved the consumer pool for 40 minutes. Root cause: shared queue. Action items: separate backfill queue (open), per-tenant fairness caps (open), alert on consumer lag >5m (done)."
+    },
+    {
+      "id": "doc_api_principles",
+      "title": "Engineering: API design principles",
+      "snippet": "Versioned from day one. Cursor pagination everywhere. Rate limits are product features — expose them in headers. No breaking changes inside a major version, ever. Errors follow problem+json."
+    }
+  ]
+}

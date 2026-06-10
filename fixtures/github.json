@@ -1,0 +1,38 @@
+{
+  "repos": [
+    { "name": "lumen/lumen-app", "description": "Main product: Next.js frontend + Node API", "defaultBranch": "main" },
+    { "name": "lumen/lumen-pipeline", "description": "Ingestion + query pipeline (Go)", "defaultBranch": "main" }
+  ],
+  "pulls": [
+    {
+      "repo": "lumen/lumen-app",
+      "number": 1421,
+      "title": "Read API v1: query results endpoint with cursor pagination",
+      "author": "ada-moreno",
+      "state": "open",
+      "body": "Implements GET /v1/queries/:id/results per docs/read-api.md. Cursor pagination, per-key rate limit middleware, workspace-scoped API keys. TODO: usage metering.",
+      "files": ["api/v1/results.ts", "api/middleware/ratelimit.ts", "docs/read-api.md"]
+    },
+    {
+      "repo": "lumen/lumen-app",
+      "number": 1418,
+      "title": "Panel grid refactor: virtualized rendering",
+      "author": "margaret-liu",
+      "state": "merged",
+      "body": "Virtualizes the dashboard panel grid. NOTE: suspected cause of the p95 load regression (LUM-377) — the eager layout pass runs twice."
+    },
+    {
+      "repo": "lumen/lumen-pipeline",
+      "number": 302,
+      "title": "Spike: scheduled export worker on alerting cron",
+      "author": "linus-park",
+      "state": "draft",
+      "body": "Proves the export scheduler can ride the alerting cron infra. Missing: S3 multipart for >5GB dashboards, retry policy, Parquet writer."
+    }
+  ],
+  "files": {
+    "lumen/lumen-app:docs/read-api.md": "# Read API v1\n\nGET /v1/queries/:id/results\n- Auth: workspace-scoped API key (header X-Lumen-Key)\n- Pagination: cursor (opaque), max page 1000 rows\n- Rate limit: 100 req/min/key, 429 with Retry-After\n- Versioning: /v1 frozen after GA; breaking changes go to /v2\n\nOpen questions: usage metering for billing; column-level ACLs.",
+    "lumen/lumen-app:api/middleware/ratelimit.ts": "// Sliding-window rate limiter keyed by API key. 100 req/min default.\n// TODO(ada): expose limit per plan tier from billing service.",
+    "lumen/lumen-pipeline:cmd/export/main.go": "// Export worker entrypoint (draft). Pulls jobs from the alerting cron bus.\n// Missing: multipart upload, retries, Parquet."
+  }
+}

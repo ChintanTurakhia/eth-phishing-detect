@@ -3,6 +3,7 @@ export * from "./sim/clock.js";
 export * from "./sim/scheduler.js";
 export * from "./sim/loop.js";
 export * from "./world/tree.js";
+export * from "./world/load.js";
 export * from "./world/nav.js";
 export * from "./world/perception.js";
 export * from "./agent/agent.js";

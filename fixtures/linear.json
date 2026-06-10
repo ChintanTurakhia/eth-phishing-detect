@@ -1,0 +1,85 @@
+{
+  "teams": [{ "id": "team_plat", "name": "Platform" }, { "id": "team_exp", "name": "Experience" }],
+  "projects": [
+    {
+      "id": "proj_q3_exports",
+      "name": "Q3: Data Out — Exports & API",
+      "state": "started",
+      "targetDate": "Q3",
+      "description": "Customers keep asking to get their data OUT of Lumen: scheduled CSV/Parquet exports, a stable read API, and webhook delivery. Top-3 churn reason for the enterprise tier."
+    },
+    {
+      "id": "proj_q3_onboarding",
+      "name": "Q3: First-Five-Minutes Onboarding",
+      "state": "started",
+      "targetDate": "Q3",
+      "description": "Cut time-to-first-dashboard from 26 minutes to under 5. Auto-detect schema, template gallery, sample data mode."
+    },
+    {
+      "id": "proj_q4_alerts",
+      "name": "Q4: Smarter Alerts",
+      "state": "planned",
+      "targetDate": "Q4",
+      "description": "Anomaly-detection alerts instead of static thresholds. Alert fatigue is the #1 complaint from power users."
+    }
+  ],
+  "issues": [
+    {
+      "id": "LUM-341",
+      "title": "Scheduled CSV export for dashboards",
+      "project": "proj_q3_exports",
+      "priority": 1,
+      "state": "todo",
+      "description": "Customers want a daily/weekly CSV of any dashboard emailed or pushed to S3. Enterprise blocker for Maxwell Corp renewal ($240k ARR)."
+    },
+    {
+      "id": "LUM-352",
+      "title": "Read API: stable v1 for query results",
+      "project": "proj_q3_exports",
+      "priority": 2,
+      "state": "in_progress",
+      "assignee": "Ada Moreno",
+      "description": "Versioned REST endpoint returning dashboard query results as JSON. Needs pagination, rate limits, API keys scoped per workspace."
+    },
+    {
+      "id": "LUM-360",
+      "title": "Onboarding: auto-detect schema from first connection",
+      "project": "proj_q3_onboarding",
+      "priority": 1,
+      "state": "todo",
+      "description": "When a user connects Postgres/Snowflake, infer event tables and suggest 3 starter dashboards. Session replays show users stall at the empty-state screen."
+    },
+    {
+      "id": "LUM-365",
+      "title": "Template gallery for first dashboard",
+      "project": "proj_q3_onboarding",
+      "priority": 2,
+      "state": "todo",
+      "description": "Curated templates (SaaS metrics, ecommerce funnel, product analytics). One-click apply with sample data."
+    },
+    {
+      "id": "LUM-298",
+      "title": "Alert fatigue: digest mode + quiet hours",
+      "project": "proj_q4_alerts",
+      "priority": 2,
+      "state": "backlog",
+      "description": "Power users get 40+ alert emails/day. Batch low-severity alerts into a digest; respect per-user quiet hours."
+    },
+    {
+      "id": "LUM-371",
+      "title": "Export pipeline: Parquet support",
+      "project": "proj_q3_exports",
+      "priority": 3,
+      "state": "backlog",
+      "description": "Data teams want Parquet, not CSV. Reuse the scheduled-export framework from LUM-341."
+    },
+    {
+      "id": "LUM-377",
+      "title": "Dashboard load p95 regressed to 4.1s",
+      "project": null,
+      "priority": 1,
+      "state": "todo",
+      "description": "p95 dashboard load went from 2.3s to 4.1s after the panel-grid refactor. Session replays show users tab away while loading."
+    }
+  ]
+}
