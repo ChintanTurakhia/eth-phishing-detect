@@ -1,11 +1,12 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import chokidar from "chokidar";
-import { readFileSync } from "node:fs";
-import { basename, resolve } from "node:path";
+import { mkdirSync, readFileSync } from "node:fs";
+import { basename, dirname, resolve } from "node:path";
 import { SimHost } from "./host.js";
 import { attachWs } from "./api/ws.js";
 import { registerRest } from "./api/rest.js";
+import { seedAgents } from "./cli/seed-fn.js";
 
 const root = resolve(import.meta.dirname, "../../..");
 const opts = {
@@ -15,8 +16,19 @@ const opts = {
   fixturesDir: resolve(root, "fixtures"),
 };
 
+mkdirSync(dirname(opts.dbPath), { recursive: true });
+
 const host = new SimHost(opts);
 await host.init();
+
+// Auto-seed on first deploy: agents always load from soul files, but memories
+// start empty on a fresh DB. Seed grounding memories if none exist yet.
+const hasMemories = [...host.sim.agents.values()].some((a) => a.memory.size > 0);
+if (!hasMemories) {
+  console.log("[server] fresh DB — seeding grounding memories…");
+  await seedAgents(host);
+  console.log(`[server] seeded ${host.sim.agents.size} agents`);
+}
 
 const app = Fastify({ logger: false });
 await app.register(cors, { origin: true });
